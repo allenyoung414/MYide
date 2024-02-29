@@ -33,3 +33,5 @@ SOURCES += \
 
 RESOURCES += \
     imagse.qrc
+
+ QT += widgets

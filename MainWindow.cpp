@@ -1460,7 +1460,7 @@ void MainWindow::Options()
 
 void MainWindow::AboutIEditor()
 {
-    QMessageBox::about(this, tr("关于iEditor"), tr("<h1>iEditor v1.1</h1><h4><font color=darkred>This is a simple C/C++ IDE for Qt4.8</font><h4><p>Academic advisor     黄建民</p><p>Guangxi Normal University   2013  韦健</p>"));
+    QMessageBox::about(this, tr("关于iEditor"), tr("<h1>iEditor v1.1</h1><h4><font color=darkred>This is a simple C/C++ IDE for CTESK(Qt6)</font><h4><p>Academic advisor     allen young</p><p> BUAA   2024  allenyoung</p>"));
 }
 
 void MainWindow::ShowPosition()
