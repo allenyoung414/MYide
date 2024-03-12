@@ -45,6 +45,8 @@ private slots:
     void New();
     void NewTab();
     void Open(const QString &fileFullPath = "");
+    // void change(const QString &fileFullPath = "");
+    void Change();
     bool Save();
     void SaveAs();
     void OpenRecentFile();
@@ -153,6 +155,7 @@ private:
     QAction *newAction;
     QAction *newTabAction;
     QAction *openAction;
+    QAction *changeAction;
     QAction *saveAction;
     QAction *saveAsAction;
     QAction *recentFileAction[MaxRecentFiles];

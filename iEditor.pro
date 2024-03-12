@@ -35,3 +35,5 @@ RESOURCES += \
     imagse.qrc
 
  QT += widgets
+
+FORMS +=

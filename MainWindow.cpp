@@ -102,7 +102,7 @@ void MainWindow::MainWindowSetup()
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     setWindowIcon(QIcon(":/images/iEditor.png"));
-    setWindowTitle("iEditor v1.1");
+    setWindowTitle("iEditor v1.0");
 }
 
 void MainWindow::CreateAction()
@@ -121,6 +121,11 @@ void MainWindow::CreateAction()
     openAction->setShortcut(QKeySequence::Open);
     openAction->setToolTip(tr("打开文件或项目(Ctrl+O)"));
     connect(openAction, SIGNAL(triggered()), this, SLOT(Open()));
+
+    changeAction = new QAction(QIcon(":/images/beginDebug.png"), tr("转换文件或项目(&Y)"), this);
+    changeAction->setShortcut(tr("Ctrl+Y"));
+    changeAction->setToolTip(tr("转换文件或项目(Ctrl+Y)"));
+    connect(changeAction, SIGNAL(triggered()), this, SLOT(Change()));
 
     saveAction = new QAction(QIcon(":/images/save.png"), tr("保存"), this);
     saveAction->setShortcut(QKeySequence::Save);
@@ -320,6 +325,7 @@ void MainWindow::CreateMenu()
     fileMenu = menuBar()->addMenu(tr("文件(&F)"));
     fileMenu->addAction(newAction);
     fileMenu->addAction(openAction);
+    fileMenu->addAction(changeAction);
     fileMenu->addAction(newTabAction);
     fileMenu->addAction(saveAction);
     fileMenu->addAction(saveAsAction);
@@ -354,6 +360,7 @@ void MainWindow::CreateMenu()
     editMenu->addAction(findAction);
 
     buildMenu = menuBar()->addMenu(tr("构建(&B)"));
+    // buildMenu->addAction(changeAction);
     buildMenu->addAction(compileAction);
     buildMenu->addAction(linkAction);
     buildMenu->addAction(runAction);
@@ -833,55 +840,126 @@ void MainWindow::NewTab()
 void MainWindow::Open(const QString &fileFullPath)
 {
     QString filePath = fileFullPath;
+  // 如果传入的文件路径为空，则弹出文件选择对话框让用户选择文件
     if (filePath.isEmpty())
     {
         filePath = QFileDialog::getOpenFileName(this, tr("打开文件-iEditor"), recentDir, tr("所有文件 (*.*);;iEditor项目(*.ieditor);;C/C++文件(*.c *.C *.cpp *.CPP *.h *.H);;文本文件 (*.txt)"));
     }
 
+    // 如果选择了文件路径
     if (!filePath.isEmpty())
     {
         recentDir = StrippedFileDir(filePath);
 
+        // 如果文件扩展名为.ieditor，表示是iEditor项目文件
         if ("ieditor" == StrippedFileName(filePath).split(".").last())
         {
+          // 检查项目是否已经打开
             if (projectTree->ProjectExist(filePath))
             {
+            // 如果项目已经打开，则显示警告消息框，并返回
                 QMessageBox::warning(this, tr("打开提示-iEditor"), tr("<p>%1</p>已在项目管理中打开").arg(filePath));
                 return;
             }
 
+            // 读取项目文件
             ReadProject(filePath);
+
+            // 更新最近打开的项目文件列表
             recentProjectFiles.removeAll(filePath);
             recentProjectFiles.prepend(filePath);
             UpdateRecentProjectFileActions();
         } else
         {
+          // 如果文件不是iEditor项目文件
+
+          // 查找文件在已打开文件列表中的索引
             int index = FindIndexByFilePath(filePath);
+
+            // 如果文件已经打开，则切换到对应的标签页并返回
             if (-1 != index)
             {
                 tabWidget->setCurrentIndex(index);
                 return;
             }
 
+            // 创建一个新的标签页
             if (CreateNewTab(false))
             {
+              // 加载文件内容到编辑器
                 if (LoadFile(filePath))
                 {
+                // 显示文件加载成功的状态栏消息
                     statusBar()->showMessage(tr("文件加载成功"), 2000);
+
+                    // 设置当前编辑器的文件路径
                     currentTextEdit->filePath = filePath;
+
+                    // 设置当前文件为活动文件
                     SetCurrentFile(filePath);
+
+                    // 设置当前标签页的提示信息为文件路径
                     tabWidget->setTabToolTip(currentTabIndex, filePath);
+
+                    // 将文件添加到项目管理列表中
                     projectDock->AddItemToOpenFileManagementListWidget(filePath);
+
+                    // 设置项目管理列表中当前行为当前标签页
                     projectDock->SetCurrentRowByOpenFileManagementListWidget(currentTabIndex);
+
+                    // 将文件更改状态设置为未修改
                     currentTextEdit->isChange = false;
+
+                    // 禁用保存操作
                     saveAction->setEnabled(false);
+
+                    // 设置上下文菜单可用
                     SetContextAvailable(true);
+
+                    // 启用属性操作菜单
                     currentTextEdit->propertyAction->setEnabled(true);
+
+                    // 检查是否启用构建工具栏
                     IsBuildToolBarEnable();
                 }
             }
         }
     }
+}
+
+void MainWindow::Change() {
+  QFileDialog fileDialog(this, "选择C文件或项目", "", "C Files (*.c)");
+  fileDialog.setFileMode(QFileDialog::ExistingFiles);
+  fileDialog.setLabelText(QFileDialog::Accept, "转换");
+
+  if (fileDialog.exec())
+  {
+    QStringList filePaths = fileDialog.selectedFiles();
+    if (filePaths.isEmpty())
+      return;
+
+    foreach (const QString &filePath, filePaths)
+    {
+      QFileInfo fileInfo(filePath);
+      QString pythonFileName = fileInfo.baseName() + ".py";
+      QString pythonFilePath = fileInfo.absolutePath() + "/" + pythonFileName;
+
+      QFile pythonFile(pythonFilePath);
+      if (pythonFile.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        // 在这里写入Python文件的内容
+        pythonFile.write("print('Hello, Python!')");
+        pythonFile.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建Python文件");
+        return;
+      }
+    }
+
+    QMessageBox::information(this, "转换完成", "Python文件已生成");
+}
 }
 
 bool MainWindow::Save()
