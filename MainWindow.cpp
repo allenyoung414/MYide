@@ -941,25 +941,243 @@ void MainWindow::Change() {
     foreach (const QString &filePath, filePaths)
     {
       QFileInfo fileInfo(filePath);
-      QString pythonFileName = fileInfo.baseName() + ".py";
-      QString pythonFilePath = fileInfo.absolutePath() + "/" + pythonFileName;
+      QString FileName1 = fileInfo.baseName() + "_main.sec";
+      QString FileName2 = fileInfo.baseName() + "_media.sec";
+      QString FileName3 = fileInfo.baseName() + "_model.sec";
+      QString FileName4 = fileInfo.baseName() + "_scenario.sec";
+      QString FileName5 = fileInfo.baseName() + "_media.seh";
+      QString FileName6 = fileInfo.baseName() + "_model.seh";
+      QString FileName7 = fileInfo.baseName() + "_scenario.seh";
 
-      QFile pythonFile(pythonFilePath);
-      if (pythonFile.open(QIODevice::WriteOnly | QIODevice::Text))
+      QString FilePath1 = fileInfo.absolutePath() + "/" + FileName1;
+      QString FilePath2 = fileInfo.absolutePath() + "/" + FileName2;
+      QString FilePath3 = fileInfo.absolutePath() + "/" + FileName3;
+      QString FilePath4 = fileInfo.absolutePath() + "/" + FileName4;
+      QString FilePath5 = fileInfo.absolutePath() + "/" + FileName5;
+      QString FilePath6 = fileInfo.absolutePath() + "/" + FileName6;
+      QString FilePath7 = fileInfo.absolutePath() + "/" + FileName7;
+
+      QFile File1(FilePath1);
+      if (File1.open(QIODevice::WriteOnly | QIODevice::Text))
       {
-        // 在这里写入Python文件的内容
-        pythonFile.write("print('Hello, Python!')");
-        pythonFile.close();
+        QTextStream out(&File1);
+        out << "/*\n"
+               " * Description:\n"
+               " *       This file contains the main function of the test.\n"
+               " */\n"
+               "#include \"test_scenario.seh\"\n"
+               "int main(int argc, char** argv)\n"
+               "{\n"
+               "    /** start of the test scenario **/\n"
+               "    test_scenario(argc, argv);\n"
+               "    return 0;\n"
+               "}\n";
+        File1.close();
       }
       else
       {
-        QMessageBox::warning(this, "错误", "无法创建Python文件");
+        QMessageBox::warning(this, "错误", "无法创建main.sec文件");
         return;
       }
+
+      QFile File2(FilePath2);
+      if (File2.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File2);
+        out << "/*\n"
+               " * Description:\n"
+               " *       This file contains definitions of mediator functions\n"
+               " *       of the subsystem.\n"
+               " */\n"
+               "#include \"test_media.seh\"\n"
+               "#include <atl/integer.h>\n"
+               "\n"
+               "mediator identifier for specification_function_signature {\n"
+               "    auxiliary_code_1\n"
+               "    call { ... }\n"
+               "    state { ... }\n"
+               "    auxiliary_code_2\n"
+               "}\n";
+        File2.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建media.sec文件");
+        return;
+      }
+
+      QFile File3(FilePath3);
+      if (File3.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File3);
+        out << "/*\n"
+               " * Description:\n"
+               " *       This file specifies a model interface of the subsystem.\n"
+               " */\n"
+               "#include \"test_model.seh\"\n"
+               "#include <atl/integer.h>\n"
+               "\n"
+               "invariant(Item item)\n"
+               "{\n"
+               "    return;\n"
+               "}\n"
+               "\n"
+               "coverage coverage_name()\n"
+               "{\n"
+               "}\n"
+               "\n"
+               "specification signature access_constraints {\n"
+               "    auxiliary_code_1_1\n"
+               "    pre { ... }\n"
+               "    {\n"
+               "        auxiliary_code_2_1\n"
+               "        coverage name_1 { ... }\n"
+               "        ...\n"
+               "        coverage name_n { ... }\n"
+               "        {\n"
+               "            auxiliary_code_3_1\n"
+               "            post { ... }\n"
+               "            auxiliary_code_3_2\n"
+               "        }\n"
+               "        auxiliary_code_2_2\n"
+               "    }\n"
+               "    auxiliary_code_1_2\n"
+               "}\n";
+        File3.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建model.sec文件");
+        return;
+      }
+
+      QFile File4(FilePath4);
+      if (File4.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File4);
+        out << "/*\n"
+            << " * Description:\n"
+            << " * This file contains a definition of a test scenario\n"
+            << " * of the subsystem.\n"
+            << " */\n"
+            << "#include \"test_scenario.seh\"\n"
+            << "\n"
+            << "#include \"test_model.seh\"\n"
+            << "#include \"test_media.seh\"\n"
+            << "#include \"test.h\"\n"
+            << "#include <atl/integer.h>\n"
+            << "\n"
+            << "static bool init_file_name(int argc, char **argv) {\n"
+            << "}\n"
+            << "\n"
+            << "static void finish_file_name() {\n"
+            << "}\n"
+            << "\n"
+            << "static datatype* state_file_name() {\n"
+            << "}\n"
+            << "\n"
+            << "scenario datatype function_name_scen() {\n"
+            << "    return ;\n"
+            << "}\n"
+            << "\n"
+            << "scenario dfsm_file_name_scenario = {\n"
+            << "    .init = (PtrInit)init_file_name,\n"
+            << "    .getState = (PtrGetState)state_file_name,\n"
+            << "    .finish = (PtrFinish)finish_file_name,\n"
+            << "    .actions = {\n"
+            << "        function_name_scen(),\n"
+            << "        NULL\n"
+            << "    }\n"
+            << "};\n";
+        File4.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建scenario.sec文件");
+        return;
+      }
+
+      QFile File5(FilePath5);
+      if (File5.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File5);
+        out << "/*\n"
+            << " * Description:\n"
+            << " * This file contains a declaration of mediator functions\n"
+            << " * of the subsystem.\n"
+            << " */\n"
+            << "#ifndef test_MEDIA_SEH\n"
+            << "#define test_MEDIA_SEH\n"
+            << "\n"
+            << "#include \"test_model.seh\"\n"
+            << "#include \"test.h\"\n"
+            << "\n"
+            << "mediator identifier for specification_function_signature\n"
+            << "    access_constraints\n"
+            << "\n"
+            << "#endif\n";
+        File5.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建media.seh文件");
+        return;
+      }
+
+      QFile File6(FilePath6);
+      if (File6.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File6);
+        out << "/*\n"
+            << " * Description:\n"
+            << " * This file declares a model interface of the stack subsystem.\n"
+            << " */\n"
+            << "#ifndef __test_MODEL_SEH__\n"
+            << "#define __test_MODEL_SEH__\n"
+            << "\n"
+            << "#include <atl/list.h>\n"
+            << "\n"
+            << "typedef datatype name\n"
+            << "    specification signature\n"
+            << "        access_constraints\n"
+            << ";\n"
+            << "\n"
+            << "#endif /* __test_MODEL_SEH__ */\n";
+        File6.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建model.seh文件");
+        return;
+      }
+
+      QFile File7(FilePath7);
+      if (File7.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+        QTextStream out(&File7);
+        out << "/*\n"
+               " * Description:\n"
+               " *       This file contains the scenario function of the test.\n"
+               " */\n"
+               "#include \"test_scenario.seh\"\n"
+               "\n"
+               "void test_scenario(int argc, char** argv)\n"
+               "{\n"
+               "    /* test scenario code */\n"
+               "}\n";
+        File7.close();
+      }
+      else
+      {
+        QMessageBox::warning(this, "错误", "无法创建scenario.seh文件");
+        return;
+      }
+
+
     }
 
-    QMessageBox::information(this, "转换完成", "Python文件已生成");
-}
+    QMessageBox::information(this, "转换完成", "CTESK测试模板已生成");
+  }
 }
 
 bool MainWindow::Save()
