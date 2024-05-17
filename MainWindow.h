@@ -58,6 +58,7 @@ private slots:
     bool Compile();
     bool Link();
     void Run();
+    void TestResult();
     void StopRun();
 
     void BeginDebug();
@@ -169,6 +170,7 @@ private:
     QAction *compileAction;
     QAction *linkAction;
     QAction *runAction;
+    QAction *resultAction;
     QAction *stopRunAction;
 
     QAction *beginDebugAction;

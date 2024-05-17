@@ -16,6 +16,7 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QProcess>
+#include<QDebug>
 
 #include "TextEditTab.h"
 #include "TextEdit.h"
@@ -213,6 +214,11 @@ void MainWindow::CreateAction()
     runAction->setToolTip(tr("运行(Ctrl+R)"));
     connect(runAction, SIGNAL(triggered()), this, SLOT(Run()));
 
+    resultAction = new QAction(QIcon(":/images/open.png"), tr("查看运行结果"), this);
+    resultAction->setShortcut(tr("Ctrl+R+E"));
+    resultAction->setToolTip(tr("(查看运行结果Ctrl+R+E)"));
+    connect(resultAction, SIGNAL(triggered()), this, SLOT(TestResult()));
+
     stopRunAction = new QAction(QIcon(":/images/stop.png"), tr("停止运行"), this);
     stopRunAction->setShortcut(tr("Ctrl+Shift+R"));
     stopRunAction->setToolTip(tr("停止运行(Ctrl+Shift+R)"));
@@ -361,6 +367,7 @@ void MainWindow::CreateMenu()
     buildMenu->addAction(compileAction);
     buildMenu->addAction(linkAction);
     buildMenu->addAction(runAction);
+    buildMenu->addAction(resultAction);
     buildMenu->addSeparator();
     buildMenu->addAction(stopRunAction);
 
@@ -426,6 +433,7 @@ void MainWindow::CreateTools()
     buildToolBar->addAction(compileAction);
     buildToolBar->addAction(linkAction);
     buildToolBar->addAction(runAction);
+    buildToolBar->addAction(resultAction);
     buildToolBar->addSeparator();
     buildToolBar->addAction(stopRunAction);
 
@@ -1527,67 +1535,92 @@ void MainWindow::SetBuildToolBarEnable(bool flags)
 
 bool MainWindow::Compile()
 {
-    if (!outputDock->isVisible())
-        outputDock->setVisible(true);
+    // if (!outputDock->isVisible())
+    //     outputDock->setVisible(true);
 
-    outputDock->ClearBuildOutput();
+    // outputDock->ClearBuildOutput();
 
-    if (currentTextEdit->isChange)
-    {
-        if (!Save())
-        {
-            QApplication::beep();
-            outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>文件 %1 自动保存失败，编译终止！</font></p>").arg(currentTextEdit->filePath));
-            return false;
-        }
-        statusBar()->showMessage(tr("文件 %1 已经自动保存！").arg(currentFileName), 2000);
-    }
+    // if (currentTextEdit->isChange)
+    // {
+    //     if (!Save())
+    //     {
+    //         QApplication::beep();
+    //         outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>文件 %1 自动保存失败，编译终止！</font></p>").arg(currentTextEdit->filePath));
+    //         return false;
+    //     }
+    //     statusBar()->showMessage(tr("文件 %1 已经自动保存！").arg(currentFileName), 2000);
+    // }
 
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=blue>清理文件</font></p>"));
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=blue>清理文件</font></p>"));
 
-    if (!RemoveFile(build.objFilePath))
-    {
-        QApplication::beep();
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>清理 %1 失败，编译终止！</font></p>").arg(build.objFilePath));
-        return false;
-    }
+    // if (!RemoveFile(build.objFilePath))
+    // {
+    //     QApplication::beep();
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>清理 %1 失败，编译终止！</font></p>").arg(build.objFilePath));
+    //     return false;
+    // }
 
-    if (!RemoveFile(build.exeFilePath))
-    {
-        QApplication::beep();
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>清理 %1 失败，编译终止！</font></p>").arg(build.exeFilePath));
-        return false;
-    }
+    // if (!RemoveFile(build.exeFilePath))
+    // {
+    //     QApplication::beep();
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>清理 %1 失败，编译终止！</font></p>").arg(build.exeFilePath));
+    //     return false;
+    // }
 
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=blue>清理完成</font></p>"));
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=blue>清理完成</font></p>"));
 
+    // QProcess process;
+    // process.setProcessChannelMode(QProcess::MergedChannels);
+    // process.setStandardOutputFile("../iEditor/config/buildmessage.wj");
+
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************开始编译********************************</font></p>"));
+
+    // if (build.isGCC)
+    // {
+    //     process.start(ConfigStruct::GetConfig()->gccPath + " -c " + ConfigStruct::GetConfig()->compilerArgument + " " + currentTextEdit->filePath + " -o " + build.objFilePath);
+    // } else
+    // {
+    //     process.start(ConfigStruct::GetConfig()->gppPath + " -c " + ConfigStruct::GetConfig()->compilerArgument + " " + currentTextEdit->filePath + " -o " + build.objFilePath);
+    // }
+
+    // if (!process.waitForFinished())
+    // {
+    //     QApplication::beep();
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>调用编译器超时,编译无法完成，请重新进行编译操作！</font></p>"));
+    //     return false;
+    // }
+
+    // process.close();
+
+    // outputDock->ShowBuildMessage("../iEditor/config/buildmessage.wj");
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************编译完成********************************</font></p>"));
+
+    // linkAction->setEnabled(outputDock->isLinkEnable);
+    // return true;
+    QString folderPath = QFileDialog::getExistingDirectory(this, "选择文件夹", "", QFileDialog::ShowDirsOnly);
+    if (folderPath.isEmpty())
+      return false;
+
+            // 执行 make all 命令
     QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    process.setStandardOutputFile("../iEditor/config/buildmessage.wj");
-
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************开始编译********************************</font></p>"));
-
-    if (build.isGCC)
-    {
-        process.start(ConfigStruct::GetConfig()->gccPath + " -c " + ConfigStruct::GetConfig()->compilerArgument + " " + currentTextEdit->filePath + " -o " + build.objFilePath);
-    } else
-    {
-        process.start(ConfigStruct::GetConfig()->gppPath + " -c " + ConfigStruct::GetConfig()->compilerArgument + " " + currentTextEdit->filePath + " -o " + build.objFilePath);
-    }
-
+    process.setWorkingDirectory(folderPath);
+    process.start("make", QStringList() << "all");
     if (!process.waitForFinished())
     {
-        QApplication::beep();
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>调用编译器超时,编译无法完成，请重新进行编译操作！</font></p>"));
-        return false;
+      QMessageBox::warning(this, "命令执行错误", "执行 make all 命令时发生错误！");
+      return false;
     }
 
-    process.close();
+            // 获取输出信息
+    QByteArray output = process.readAllStandardOutput();
+    QByteArray error = process.readAllStandardError();
 
-    outputDock->ShowBuildMessage("../iEditor/config/buildmessage.wj");
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************编译完成********************************</font></p>"));
+            // 将输出信息转换为字符串
+    QString outputString = QString::fromUtf8(output);
+    QString errorString = QString::fromUtf8(error);
 
-    linkAction->setEnabled(outputDock->isLinkEnable);
+            // 显示输出信息
+    QMessageBox::information(this, "make all 命令执行完成", "输出信息：\n" + outputString + "\n错误信息：\n" + errorString);
     return true;
 }
 
@@ -1637,51 +1670,118 @@ bool MainWindow::Link()
 
 void MainWindow::Run()
 {
-    if (!outputDock->isVisible())
-        outputDock->setVisible(true);
+    // if (!outputDock->isVisible())
+    //     outputDock->setVisible(true);
 
-    QFile file(build.exeFilePath);
-    if (!file.exists())
+    // QFile file(build.exeFilePath);
+    // if (!file.exists())
+    // {
+    //     QApplication::beep();
+    //     if (!Compile())
+    //         return;
+    //     if (!Link())
+    //         return;
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>可执行文件[%1]不存在，iEditor将会执行编译和链接操作</font></p>").arg(build.exeFilePath));
+    // }
+
+
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>********************************开始运行********************************</font></p>"));
+
+    // int wait = 0;
+    // while(wait != 2) {
+    //     ++wait;
+    //     QCoreApplication::processEvents();
+    // }
+
+    // QProcess  process;
+    // QString titleArg = ConfigStruct::GetConfig()->terminalArgument.split(" ").first() + build.terminalTitle;
+
+    // if (0 > process.execute(tr("%1 %2 -x bash -c %3;read line").arg(ConfigStruct::GetConfig()->terminalPath).arg(titleArg).arg(build.exeFilePath)))
+    // {
+    //     QApplication::beep ();
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("\n<p><font color=red>系统错误：%1，运行终止！</font></p>").arg(process.errorString()));
+    //     return;
+    // }
+
+    // QProcess::ExitStatus exitStatus = process.exitStatus();
+    // if (QProcess::NormalExit == exitStatus)
+    // {
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>程序正常退出，退出代码：%1</font></p>").arg(process.exitCode()));
+    // } else if (QProcess::CrashExit == exitStatus)
+    // {
+    //     outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>程序崩溃，退出代码：%1</font></p>").arg(process.exitCode()));
+    // }
+
+    // process.close();
+    // outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>********************************运行结束********************************</font></p>"));
+    QString folderPath = QFileDialog::getExistingDirectory(this, "选择文件夹", "", QFileDialog::ShowDirsOnly);
+    if (folderPath.isEmpty())
+      return;
+
+    QString filePath = QFileDialog::getOpenFileName(this, "选择可执行文件", folderPath);
+    if (filePath.isEmpty())
+      return;
+
+            // 执行可执行文件
+    QProcess process;
+    process.setWorkingDirectory(folderPath);
+    process.start(filePath);
+    if (!process.waitForFinished())
     {
-        QApplication::beep();
-        if (!Compile())
-            return;
-        if (!Link())
-            return;
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=red>可执行文件[%1]不存在，iEditor将会执行编译和链接操作</font></p>").arg(build.exeFilePath));
+      QMessageBox::warning(this, "命令执行错误", "执行可执行文件时发生错误！");
+      return;
     }
 
+            // 获取输出信息
+    QByteArray output = process.readAllStandardOutput();
+    QByteArray error = process.readAllStandardError();
 
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>********************************开始运行********************************</font></p>"));
+            // 将输出信息转换为字符串
+    QString outputString = QString::fromUtf8(output);
+    QString errorString = QString::fromUtf8(error);
 
-    int wait = 0;
-    while(wait != 2) {
-        ++wait;
-        QCoreApplication::processEvents();
-    }
-
-    QProcess  process;
-    QString titleArg = ConfigStruct::GetConfig()->terminalArgument.split(" ").first() + build.terminalTitle;
-
-    if (0 > process.execute(tr("%1 %2 -x bash -c %3;read line").arg(ConfigStruct::GetConfig()->terminalPath).arg(titleArg).arg(build.exeFilePath)))
-    {
-        QApplication::beep ();
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("\n<p><font color=red>系统错误：%1，运行终止！</font></p>").arg(process.errorString()));
-        return;
-    }
-
-    QProcess::ExitStatus exitStatus = process.exitStatus();
-    if (QProcess::NormalExit == exitStatus)
-    {
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>程序正常退出，退出代码：%1</font></p>").arg(process.exitCode()));
-    } else if (QProcess::CrashExit == exitStatus)
-    {
-        outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>程序崩溃，退出代码：%1</font></p>").arg(process.exitCode()));
-    }
-
-    process.close();
-    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#FF8817>********************************运行结束********************************</font></p>"));
+            // 显示输出信息
+    QMessageBox::information(this, "可执行文件执行完成", "输出信息：\n" + outputString + "\n错误信息：\n" + errorString);
 }
+
+void MainWindow::TestResult() {
+  QFileDialog fileDialog(this, "选择测试结果文件", "", "UTT Files (*.utt)");
+  fileDialog.setFileMode(QFileDialog::ExistingFile);
+  fileDialog.setLabelText(QFileDialog::Accept, "查看结果");
+
+  if (fileDialog.exec())
+  {
+    QStringList filePaths = fileDialog.selectedFiles();
+    if (filePaths.isEmpty())
+      return;
+
+    const QString &filePath = filePaths.first();
+
+            // 执行 stargen.sh 命令
+    QStringList command1Args;
+    command1Args << "stargen.sh" << filePath << "-d" << "~/final";
+    QProcess process1;
+    process1.start("bash", command1Args);
+    if (!process1.waitForFinished())
+    {
+      QMessageBox::warning(this, "命令执行错误", "执行 stargen.sh 命令时发生错误！");
+      return;
+    }
+
+            // 执行 firefox 命令
+    QStringList command2Args;
+    command2Args << "firefox" << "~/final/index.html";
+    QProcess process2;
+    process2.start("bash", command2Args);
+    if (!process2.waitForFinished())
+    {
+      QMessageBox::warning(this, "命令执行错误", "执行 firefox 命令时发生错误！");
+      return;
+    }
+  }
+  QMessageBox::information(this, "测试结果可视化已完成", "确定");
+}
+
 
 void MainWindow::StopRun()
 {
