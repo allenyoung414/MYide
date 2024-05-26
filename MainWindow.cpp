@@ -1502,11 +1502,11 @@ void MainWindow::IsBuildToolBarEnable()
         SetBuildToolBarEnable(true);
     } else if ("cpp" == extensionName)
     {
-        SetBuildStruct(false);
+        SetBuildStruct(true);
         SetBuildToolBarEnable(true);
     } else
     {
-        SetBuildToolBarEnable(false);
+        SetBuildToolBarEnable(true);
     }
 }
 
@@ -1620,7 +1620,14 @@ bool MainWindow::Compile()
     QString errorString = QString::fromUtf8(error);
 
             // 显示输出信息
+    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************开始编译********************************</font></p>"));
     QMessageBox::information(this, "make all 命令执行完成", "输出信息：\n" + outputString + "\n错误信息：\n" + errorString);
+    QString outputHtml = tr("<p><font color=#000000>输出信息：</font></p>") + outputString;
+    QString errorHtml = tr("<p><font color=#FF0000>错误信息：</font></p>") + errorString;
+
+    outputDock->AppendHtmlToBuildOutputPlainTextEdit(outputHtml);
+    outputDock->AppendHtmlToBuildOutputPlainTextEdit(errorHtml);
+    outputDock->AppendHtmlToBuildOutputPlainTextEdit(tr("<p><font color=#7687F1>********************************编译完成********************************</font></p>"));
     return true;
 }
 
